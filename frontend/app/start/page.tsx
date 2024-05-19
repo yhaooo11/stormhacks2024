@@ -55,7 +55,7 @@ export default function Home() {
     const handleClick = () => {
         setPage(page + 1);
         console.log(session);
-        console.log(tags);
+        console.log(tags, loading, error);
         if (page + 1 === 3) {
             const tagRefs = selectedTags.map((tag) => doc(db, "tags", tag));
             // @ts-ignore
@@ -65,7 +65,7 @@ export default function Home() {
             addDoc(collection(db, "studies"), {
                 title: name,
                 description: description,
-                tags: tagRefs,
+                tags: selectedTags,
                 mode: selectedMode,
                 participants: [],
                 researcher: userRef,
@@ -143,19 +143,23 @@ export default function Home() {
                                           className={`flex justify-center items-center gap-3 px-4 py-2 rounded-full text-white ${
                                               selectedTags.some(
                                                   (selectedTag) =>
-                                                      selectedTag === doc.id
+                                                      selectedTag ===
+                                                      doc.data().name
                                               )
                                                   ? "bg-blue-500"
                                                   : "bg-[#404040]"
                                           } hover:cursor-pointer`}
                                           key={doc.id}
-                                          onClick={() => handleTagClick(doc.id)}
+                                          onClick={() =>
+                                              handleTagClick(doc.data().name)
+                                          }
                                       >
                                           <div
                                               className={`w-6 h-6 rounded-full  ${
                                                   selectedTags.some(
                                                       (selectedTag) =>
-                                                          selectedTag === doc.id
+                                                          selectedTag ===
+                                                          doc.data().name
                                                   )
                                                       ? "bg-lime-400"
                                                       : "bg-orange-500"

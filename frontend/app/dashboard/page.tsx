@@ -24,16 +24,24 @@ export default function Dashboard() {
     const [numPending, setNumPending] = useState(0);
     const [projectList, setProjectList] = useState<any>([]);
     const session = useSession();
+    const [tab, setTab] = useState("joined");
+    const [invites, setInvites] = useState<any>([]);
+    const [joined, setJoined] = useState<any>([]);
 
-    async function getTagDocuments(tagRefs: any) {
-        const tagDocsPromises = tagRefs.map(async (tagRef: any) => {
-            const tagDoc = await getDoc(tagRef);
-            if (tagDoc.exists()) {
-                // @ts-ignore
-                return { id: tagDoc.id, ...tagDoc.data() };
-            }
-        });
-        return Promise.all(tagDocsPromises);
+    async function getStudy(studyRef: any) {
+        // const tagDocsPromises = tagRefs.map(async (tagRef: any) => {
+        //     const tagDoc = await getDoc(tagRef);
+        //     if (tagDoc.exists()) {
+        //         // @ts-ignore
+        //         return { id: tagDoc.id, ...tagDoc.data() };
+        //     }
+        // });
+        const studyDoc = await getDoc(studyRef);
+
+        if (studyDoc.exists()) {
+            // @ts-ignore
+            return { id: studyDoc.id, ...studyDoc.data() };
+        }
     }
 
     async function getInvited(tagRefs: any) {
@@ -61,22 +69,21 @@ export default function Dashboard() {
                 const studiesCollection = collection(db, "studies");
                 const q = query(
                     studiesCollection,
-                    where("moderator", "==", userDocRef)
+                    where("researcher", "==", userDocRef)
                 );
                 getDocs(q)
-                    .then(async (querySnapshot) => {
-                        const studies = await Promise.all(
-                            querySnapshot.docs.map(async (studyDoc) => {
-                                const studyData = studyDoc.data();
-                                if (studyData.tags) {
-                                    const tagDocs = await getTagDocuments(
-                                        studyData.tags
-                                    );
-                                    studyData.tags = tagDocs;
-                                }
-                                return { id: studyDoc.id, ...studyData };
-                            })
-                        );
+                    .then((querySnapshot) => {
+                        const studies = querySnapshot.docs.map((studyDoc) => {
+                            const studyData = studyDoc.data();
+                            // if (studyData.tags) {
+                            //     const tagDocs = await getTagDocuments(
+                            //         studyData.tags
+                            //     );
+                            //     studyData.tags = tagDocs;
+                            // }
+                            return { id: studyDoc.id, ...studyData };
+                        });
+
                         console.log(studies);
                         setProjectList(studies);
                     })
@@ -86,6 +93,7 @@ export default function Dashboard() {
                 // @ts-ignore
             } else if (session?.data?.user?.role == "participant") {
                 // get studies
+                // @ts-ignore
                 const userDocRef = doc(db, "users", session?.data?.user?.id);
                 const invitesCollection = collection(db, "invites");
                 const joinedCollection = collection(db, "joinedStudies");
@@ -108,7 +116,45 @@ export default function Dashboard() {
                 // instead of references
 
                 getDocs(qInvites)
-                    .then(async (querySnapshot) => {})
+                    .then(async (querySnapshot) => {
+                        const invites = await Promise.all(
+                            querySnapshot.docs.map(async (inviteDoc) => {
+                                const inviteData = inviteDoc.data();
+                                if (inviteData.study) {
+                                    const studyDoc = await getStudy(
+                                        inviteData.study
+                                    );
+                                    inviteData.study = studyDoc;
+                                    return studyDoc;
+                                }
+                            })
+                        );
+
+                        console.log(invites);
+                        setInvites(invites);
+                    })
+                    .catch((error) => {
+                        console.log("Error getting documents: ", error);
+                    });
+
+                getDocs(qJoined)
+                    .then(async (querySnapshot) => {
+                        const joined = await Promise.all(
+                            querySnapshot.docs.map(async (joinedDoc) => {
+                                const joinedData = joinedDoc.data();
+                                if (joinedData.study) {
+                                    const joinedDoc = await getStudy(
+                                        joinedData.study
+                                    );
+                                    joinedData.study = joinedDoc;
+                                    return joinedDoc;
+                                }
+                            })
+                        );
+
+                        console.log(joined);
+                        setJoined(joined);
+                    })
                     .catch((error) => {
                         console.log("Error getting documents: ", error);
                     });
@@ -163,7 +209,7 @@ export default function Dashboard() {
                                             key={index}
                                             className="bg-gray-300 text-gray-700 px-2 py-1 rounded-full text-sm mr-2"
                                         >
-                                            {tag.name}
+                                            {tag}
                                         </span>
                                     ))}
                                 </div>
@@ -188,43 +234,95 @@ export default function Dashboard() {
                     <h1 className="text-4xl font-bold font-serif mt-8 mb-8">
                         Projects
                     </h1>
-                    <div className="proj h-1/5 flex justify-between gap-16">
-                        <div className="notis w-1/2">
+                    <div className="proj">
+                        <div className="flex gap-6">
+                            <h2
+                                className={`text-lg ${
+                                    tab === "joined" ? "text-tertiary" : ""
+                                } hover:cursor-pointer`}
+                                onClick={() => setTab("joined")}
+                            >
+                                Joined
+                            </h2>
+                            <h2
+                                className={`text-lg ${
+                                    tab === "invites" ? "text-tertiary" : ""
+                                } hover:cursor-pointer`}
+                                onClick={() => setTab("invites")}
+                            >
+                                Invited
+                            </h2>
+                        </div>
+                        {/* <div className="notis w-1/2">
                             <p className="text-xl">Notifications</p>
                             <hr className="w-full mb-6 h-0.5 bg-black" />
                             <p className="text-lg">
                                 {numPending} Pending Requests
                             </p>
-                        </div>
+                        </div> */}
                     </div>
-                    <hr className="w-full mt-16 mb-16 h-0.5 bg-black" />
+                    <hr className="w-full mt-4 mb-4 h-0.5 bg-black" />
                     <div className="project-list w-full">
-                        {projectList.map((project, key) => (
-                            <div
-                                key={key}
-                                className="pl-8 border-2 border-black rounded-lg p-4 mb-4"
-                            >
-                                <div className="flex mb-4">
-                                    {project.tags.map((tag, index) => (
-                                        <span
-                                            key={index}
-                                            className="bg-gray-300 text-gray-700 px-2 py-1 rounded-full text-sm mr-2"
-                                        >
-                                            {tag}
-                                        </span>
-                                    ))}
+                        {tab === "joined" ? (
+                            joined.map((project, key) => (
+                                <div
+                                    key={key}
+                                    className="pl-8 border-2 border-black rounded-lg p-4 mb-4"
+                                >
+                                    <div className="flex mb-4">
+                                        {project.tags.map((tag, index) => (
+                                            <span
+                                                key={index}
+                                                className="bg-gray-300 text-gray-700 px-2 py-1 rounded-full text-sm mr-2"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <h2 className="text-xl font-bold">
+                                        {project.title}
+                                    </h2>
+                                    <p className="text-gray-600">
+                                        {project.description}
+                                    </p>
+                                    <button className="mt-6 bg-black text-white p-3 pr-5 pl-5 rounded-md">
+                                        View
+                                    </button>
                                 </div>
-                                <h2 className="text-xl font-bold">
-                                    {project.name}
-                                </h2>
-                                <p className="text-gray-600">
-                                    {project.description}
-                                </p>
-                                <button className="mt-6 bg-black text-white p-3 pr-5 pl-5 rounded-md">
-                                    Edit
-                                </button>
+                            ))
+                        ) : (
+                            <div>
+                                {invites.map((invite, key) => (
+                                    <div
+                                        key={key}
+                                        className="pl-8 border-2 border-black rounded-lg p-4 mb-4"
+                                    >
+                                        <div className="flex mb-4">
+                                            {invite.tags.map((tag, index) => (
+                                                <span
+                                                    key={index}
+                                                    className="bg-gray-300 text-gray-700 px-2 py-1 rounded-full text-sm mr-2"
+                                                >
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <h2 className="text-xl font-bold">
+                                            {invite.title}
+                                        </h2>
+                                        <p className="text-gray-600">
+                                            {invite.description}
+                                        </p>
+                                        <button className="mt-6 mr-4 bg-black text-white p-3 pr-5 pl-5 rounded-md">
+                                            Accept
+                                        </button>
+                                        <button className="mt-6 bg-black text-white p-3 pr-5 pl-5 rounded-md">
+                                            Decline
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        )}
                     </div>
                     <div className="flex-col"></div>
                 </div>
