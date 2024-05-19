@@ -58,7 +58,7 @@ export default async function RootLayout({
                 className={`${zodiak.variable} ${jakarta.variable} font-mono ${inter.className}`}
             >
                 <SessionProvider session={session}>
-                    <main className="bg-primary w-screen h-screen text-black">
+                    <main className="overflow-y-scroll bg-primary w-screen h-screen text-black">
                         {children}
                     </main>
                 </SessionProvider>

@@ -4,6 +4,7 @@ import { app, db } from "./firebase.ts";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { getDocs, collection, query, where } from "firebase/firestore";
 import Logo from "@/components/logo";
+import { useState } from "react"
 
 export default function Home() {
     const session = useSession();
@@ -12,6 +13,8 @@ export default function Home() {
         operator: "==",
         value: "Jayson Yi",
     };
+    
+    const [userImages, setUserImages] = useState<string[]>([]);
 
     console.log(session);
 
@@ -19,7 +22,8 @@ export default function Home() {
     const q = query(collection(db, "users"));
     getDocs(q).then((qs) => {
         qs.forEach((doc) => {
-            console.log(doc.data().name);
+            console.log(doc.data().image);
+            setUserImages(prev => [...prev, doc.data().image]);
         });
     });
 
@@ -38,10 +42,10 @@ export default function Home() {
                         participating in studies.
                     </p>
                     <div className="flex gap-5">
-                        <a className="bg-tertiary text-white px-6 py-2 rounded-md">
+                        <a className="bg-tertiary text-white px-6 py-2 rounded-md hover:cursor-pointer">
                             Sign In
                         </a>
-                        <a className="text-black px-6 py-2 rounded-md border-tertiary border-2">
+                        <a className="text-black px-6 py-2 rounded-md border-tertiary border-2 hover:cursor-pointer">
                             Sign Up
                         </a>
                     </div>
