@@ -45,11 +45,10 @@ export default function Home() {
     };
 
     if (session.status === "loading") {
-        return <div>Loading...</div>;
+        return <div></div>;
     }
 
     if (session.status === "unauthenticated") {
-        // redirect("/login");
         router.push("/login");
     }
 
