@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import { signOut, signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface Project {
     name: string;
@@ -10,6 +12,12 @@ interface Project {
 export default function Dashboard() {
     const [numPending, setNumPending] = useState(0);
     const [projectList, setProjectList] = useState<Project[]>([]);
+    const router = useRouter();
+    const session = useSession();
+
+    if (!session) {
+        router.push("/");
+    }
 
     useEffect(() => {
         setProjectList([
@@ -47,7 +55,7 @@ export default function Dashboard() {
                     ></div>
                     <div className="notis w-1/2">
                         <p className="text-xl">Notifications</p>
-                        <hr className="w-full mt-16 mb-16 h-0.5 bg-black" />
+                        <hr className="w-full mt-10 mb-10 h-0.5 bg-black" />
                         <p className="text-lg">{numPending} Pending Requests</p>
                     </div>
                 </div>
