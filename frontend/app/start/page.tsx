@@ -1,28 +1,28 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
 import Logo from "@/components/logo";
 import { useState } from "react";
-import { collection, query } from "firebase/firestore";
-import { useCollectionData } from "react-firebase-hooks/firestore";
+import { addDoc, collection, doc, query } from "firebase/firestore";
+import {
+    useCollection,
+    useCollectionData,
+} from "react-firebase-hooks/firestore";
 import { db } from "../firebase.ts";
 import Image from "next/image";
-
-interface Tag {
-    name: string;
-    // Add any other properties if needed
-}
+import { useRouter } from "next/navigation";
 
 export default function Home() {
     const session = useSession();
     const [page, setPage] = useState(0);
-    const [listOfTags, setListOfTags] = useState([]);
     const q = query(collection(db, "tags"));
-    const [tags, loading, error] = useCollectionData(q);
-    const [selectedTags, setSelectedTags] = useState<Tag[]>([]); // State to track the selected tags
+    const [tags, loading, error] = useCollection(q);
+    const [name, setName] = useState<string>(""); // State to track the name of the study
+    const [description, setDescription] = useState<string>(""); // State to track the description of the study
+    const [selectedTags, setSelectedTags] = useState<string[]>([]); // State to track the selected tags
     const [selectedMode, setSelectedMode] = useState<string>(""); // State to track the selected tags
+    const router = useRouter();
 
-    const handleTagClick = (tag: Tag) => {
+    const handleTagClick = (tag: string) => {
         if (selectedTags.includes(tag)) {
             setSelectedTags(
                 selectedTags.filter((selectedTag) => selectedTag !== tag)
@@ -36,18 +36,51 @@ export default function Home() {
         setSelectedMode(mode);
     };
 
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setName(e.target.value);
+    };
+
+    const handleDescChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setDescription(e.target.value);
+    };
+
     if (session.status === "loading") {
         return <div>Loading...</div>;
     }
 
     if (session.status === "unauthenticated") {
-        redirect("/login");
+        // redirect("/login");
+        router.push("/login");
     }
 
     const handleClick = () => {
         setPage(page + 1);
-        if (page + 1 === 2) {
-            console.log(selectedTags);
+        console.log(session);
+        console.log(tags);
+        if (page + 1 === 3) {
+            const tagRefs = selectedTags.map((tag) => doc(db, "tags", tag));
+            // @ts-ignore
+            const userRef = doc(db, "users", session?.data?.user?.id);
+
+            console.log(name, description, selectedTags, selectedMode);
+            addDoc(collection(db, "studies"), {
+                title: name,
+                description: description,
+                tags: tagRefs,
+                mode: selectedMode,
+                participants: [],
+                researcher: userRef,
+            })
+                .then((newStudyRef) => {
+                    // Handle success
+                    console.log(newStudyRef);
+                    router.push("/dashboard");
+                })
+                .catch((error) => {
+                    // Handle error
+                    console.error("Error adding document: ", error);
+                });
+            return <div>Loading...</div>;
         }
     };
 
@@ -69,6 +102,8 @@ export default function Home() {
                                 name="studyName"
                                 placeholder="Study Name"
                                 className="w-5/12 h-12 border-2 border-black rounded-md px-3"
+                                value={name}
+                                onChange={handleNameChange}
                             />
                             <input
                                 type="text"
@@ -76,6 +111,8 @@ export default function Home() {
                                 name="studyDesc"
                                 placeholder="Description"
                                 className="h-12 w-5/12 border-2 border-black rounded-md px-3"
+                                value={description}
+                                onChange={handleDescChange}
                             />
                             <div className="flex flex-row justify-end w-5/12">
                                 <button
@@ -101,33 +138,31 @@ export default function Home() {
                             best:
                         </h1>
                         <div className="flex flex-wrap w-10/12 gap-4 items-center justify-center">
-                            {tags
-                                ? tags.map((tag, i) => (
+                            {tags && !loading
+                                ? tags.docs.map((doc, i) => (
                                       <div
                                           className={`flex justify-center items-center gap-3 px-4 py-2 rounded-full text-white ${
                                               selectedTags.some(
                                                   (selectedTag) =>
-                                                      selectedTag === tag
+                                                      selectedTag === doc.id
                                               )
                                                   ? "bg-blue-500"
                                                   : "bg-[#404040]"
                                           } hover:cursor-pointer`}
-                                          key={i}
-                                          onClick={() =>
-                                              handleTagClick(tag as Tag)
-                                          }
+                                          key={doc.id}
+                                          onClick={() => handleTagClick(doc.id)}
                                       >
                                           <div
                                               className={`w-6 h-6 rounded-full  ${
                                                   selectedTags.some(
                                                       (selectedTag) =>
-                                                          selectedTag === tag
+                                                          selectedTag === doc.id
                                                   )
                                                       ? "bg-lime-400"
                                                       : "bg-orange-500"
                                               }`}
                                           ></div>
-                                          {tag.name}
+                                          {doc.data().name}
                                       </div>
                                   ))
                                 : "Loading..."}
@@ -200,7 +235,7 @@ export default function Home() {
                             onClick={handleClick}
                             className="bg-black text-white px-6 py-2 rounded-md hover:cursor-pointer"
                         >
-                            Next
+                            Create Study
                         </button>
                     </div>
                 </div>
