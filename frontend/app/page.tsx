@@ -4,6 +4,7 @@ import { app, db } from "./firebase.ts";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { getDocs, collection, query, where } from "firebase/firestore";
 import Logo from "@/components/logo";
+import { useState } from "react"
 
 export default function Home() {
     const session = useSession();
@@ -12,6 +13,8 @@ export default function Home() {
         operator: "==",
         value: "Jayson Yi",
     };
+    
+    const [userImages, setUserImages] = useState<string[]>([]);
 
     console.log(session);
 
@@ -19,7 +22,8 @@ export default function Home() {
     const q = query(collection(db, "users"));
     getDocs(q).then((qs) => {
         qs.forEach((doc) => {
-            console.log(doc.data().name);
+            console.log(doc.data().image);
+            setUserImages(prev => [...prev, doc.data().image]);
         });
     });
 
