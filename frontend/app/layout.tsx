@@ -16,6 +16,10 @@ const zodiak = localFont({
         },
         {
             path: "../public/fonts/Zodiak-Variable.ttf",
+            weight: "500",
+        },
+        {
+            path: "../public/fonts/Zodiak-Variable.ttf",
             weight: "700",
         },
     ],
@@ -51,10 +55,12 @@ export default async function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${zodiak.variable} ${jakarta.variable} font-sans ${inter.className}`}
+                className={`${zodiak.variable} ${jakarta.variable} font-mono ${inter.className}`}
             >
                 <SessionProvider session={session}>
-                    <main className="">{children}</main>
+                    <main className="bg-primary w-screen h-screen text-black">
+                        {children}
+                    </main>
                 </SessionProvider>
             </body>
         </html>
