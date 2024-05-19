@@ -42,10 +42,10 @@ export default function Home() {
                         participating in studies.
                     </p>
                     <div className="flex gap-5">
-                        <a className="bg-tertiary text-white px-6 py-2 rounded-md hover:cursor-pointer">
+                        <a href="/login" className="bg-tertiary text-white px-6 py-2 rounded-md hover:cursor-pointer">
                             Sign In
                         </a>
-                        <a className="text-black px-6 py-2 rounded-md border-tertiary border-2 hover:cursor-pointer">
+                        <a href="/signup" className="text-black px-6 py-2 rounded-md border-tertiary border-2 hover:cursor-pointer">
                             Sign Up
                         </a>
                     </div>
