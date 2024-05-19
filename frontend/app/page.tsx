@@ -14,18 +14,6 @@ export default function Home() {
         value: "Jayson Yi",
     };
     
-    const [userImages, setUserImages] = useState<string[]>([]);
-
-    console.log(session);
-
-    // @ts-ignore
-    const q = query(collection(db, "users"));
-    getDocs(q).then((qs) => {
-        qs.forEach((doc) => {
-            console.log(doc.data().image);
-            setUserImages(prev => [...prev, doc.data().image]);
-        });
-    });
 
     return (
         <div className="flex h-full px-10 py-8">
