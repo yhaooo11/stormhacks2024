@@ -1,10 +1,12 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import Image from "next/image";
 import Logo from "./logo";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { db } from "../app/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 interface LoginProps {
     role: string;
@@ -23,7 +25,22 @@ export default function Login({ role }: LoginProps) {
             redirectUrl = "/dashboard";
         } else {
         }
-        signIn("google", { callbackUrl: redirectUrl });
+        signIn("google", { callbackUrl: redirectUrl }).then(async () => {
+            const session = await getSession();
+            if (session) {
+                console.log(session);
+                // @ts-ignore
+                const userId = session?.user?.id; // Adjust this based on how user ID is stored in session
+                const userDocRef = doc(db, "users", userId);
+                await setDoc(
+                    userDocRef,
+                    { ["role"]: "researcher" },
+                    { merge: true }
+                );
+            } else {
+                console.error("No session found.");
+            }
+        });
     };
 
     return (
@@ -53,7 +70,9 @@ export default function Login({ role }: LoginProps) {
                         font-mono rounded-md"
                             onClick={() => redirect()}
                         >
-                            {!who.length ? "Sign in with Google" : "Sign Up with Google"}
+                            {!who.length
+                                ? "Sign in with Google"
+                                : "Sign Up with Google"}
                         </button>
                         <hr className="mx-auto m-8 w-3/4 h-0.5 bg-[#404040]" />
                         <input

@@ -219,8 +219,11 @@ export default function Dashboard() {
                                 <p className="text-gray-600">
                                     {project.description}
                                 </p>
-                                <button className="mt-6 bg-black text-white p-3 pr-5 pl-5 rounded-md">
-                                    Edit
+                                <button
+                                    className="mt-6 bg-black text-white p-3 pr-5 pl-5 rounded-md"
+                                    onClick={() => router.push("/find")}
+                                >
+                                    Find Participants
                                 </button>
                             </div>
                         ))}

@@ -4,7 +4,7 @@ import { app, db } from "./firebase.ts";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { getDocs, collection, query, where } from "firebase/firestore";
 import Logo from "@/components/logo";
-import { useState } from "react"
+import { useState } from "react";
 
 export default function Home() {
     const session = useSession();
@@ -13,7 +13,6 @@ export default function Home() {
         operator: "==",
         value: "Jayson Yi",
     };
-    
 
     return (
         <div className="flex h-full px-10 py-8">
@@ -30,16 +29,27 @@ export default function Home() {
                         participating in studies.
                     </p>
                     <div className="flex gap-5">
-                        <a href="/login" className="bg-tertiary text-white px-6 py-2 rounded-md hover:cursor-pointer">
+                        <a
+                            href="/login"
+                            className="bg-tertiary text-white px-6 py-2 rounded-md hover:cursor-pointer"
+                        >
                             Sign In
                         </a>
-                        <a href="/signup" className="text-black px-6 py-2 rounded-md border-tertiary border-2 hover:cursor-pointer">
+                        <a
+                            href="/signup"
+                            className="text-black px-6 py-2 rounded-md border-tertiary border-2 hover:cursor-pointer"
+                        >
                             Sign Up
                         </a>
                     </div>
                 </div>
                 <div className="w-1/2">
-                    <div className="bg-slate-300 h-80 rounded-md"></div>
+                    <div className="bg-slate-300 h-80 rounded-md shadow-sm">
+                        <video className="w-full" controls autoPlay>
+                            <source src="/demo.mp4" type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
                 </div>
             </div>
         </div>
