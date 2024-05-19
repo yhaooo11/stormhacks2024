@@ -16,10 +16,9 @@ export default function Setup() {
     }
     const [formData, setFormData] = useState({
         age: "",
-        email: "",
         gender: "",
-        location: "Vancouver, BC",
-        name: "",
+        location: "",
+        // @ts-ignore
         occupation: "",
         role: "participant",
     });
@@ -78,21 +77,11 @@ export default function Setup() {
                     ></Image>
                 </div>
                 <div className="flex justify-center items-center w-1/2">
-                    <div className="text-center w-3/5 h-1/2 bg-[#ffdbb4] rounded-md">
+                    <div className="text-center w-3/5 h-[45%] bg-[#ffdbb4] rounded-md">
                         <h2 className="text-black pt-12 mb-10 text-2xl font-mono">
                             Participant Setup
                         </h2>
                         <form onSubmit={handleSubmit}>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                placeholder="Name"
-                                className="w-3/4 p-3 mb-2 border border-gray-400 rounded-md font-mono placeholder-[#f4bb87] bg-[#ffdbb4] font-semibold"
-                                required
-                            />
                             <input
                                 type="number"
                                 id="age"
@@ -100,16 +89,6 @@ export default function Setup() {
                                 value={formData.age}
                                 onChange={handleChange}
                                 placeholder="Age"
-                                className="w-3/4 p-3 mb-2 border border-gray-400 rounded-md font-mono placeholder-[#f4bb87] bg-[#ffdbb4] font-semibold"
-                                required
-                            />
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                placeholder="Email"
                                 className="w-3/4 p-3 mb-2 border border-gray-400 rounded-md font-mono placeholder-[#f4bb87] bg-[#ffdbb4] font-semibold"
                                 required
                             />
@@ -133,6 +112,16 @@ export default function Setup() {
                                 value={formData.occupation}
                                 onChange={handleChange}
                                 placeholder="Occupation"
+                                className="w-3/4 p-3 mb-2 border border-gray-400 rounded-md font-mono placeholder-[#f4bb87] bg-[#ffdbb4] font-semibold"
+                                required
+                            />
+                            <input
+                                type="text"
+                                id="location"
+                                name="location"
+                                value={formData.location}
+                                onChange={handleChange}
+                                placeholder="Location"
                                 className="w-3/4 p-3 mb-2 border border-gray-400 rounded-md font-mono placeholder-[#f4bb87] bg-[#ffdbb4] font-semibold"
                                 required
                             />
