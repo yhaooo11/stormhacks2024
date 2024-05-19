@@ -10,13 +10,15 @@
   },
   "dependencies": {
     "@auth/firebase-adapter": "^2.1.0",
+    "@next/font": "^14.2.3",
     "axios": "^1.6.8",
     "firebase": "^10.12.0",
     "firebase-admin": "^11.11.1",
     "next": "14.2.3",
     "next-auth": "^4.24.7",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-firebase-hooks": "^5.1.1"
   },
   "devDependencies": {
     "@types/node": "^20",
